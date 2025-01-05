@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPSSA LIBRARY SYSTEM</title>
+    <link rel="icon" href="COMPSSA_LOGO.png" type="image/png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #00308F;
+            padding: 10px;
+            color: white;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .language-selector {
+            margin-left: auto;
+        }
+
+        .hamburger-menu {
+            position: relative;
+        }
+
+        .hamburger-icon {
+            cursor: pointer;
+            font-size: 24px;
+            margin-left: 20px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            z-index: 1000;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            font-size: 24px;
+            align-self: flex-end;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-info p {
+            margin: 0;
+        }
+
+        .user-menu {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-menu button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .home-container {
+            padding: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        #book-search {
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+        }
+
+        #search-btn {
+            padding: 15px 20px;
+            font-size: 16px;
+            background-color: #00308F;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .books-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1 1 calc(25% - 20px);
+            cursor: pointer; /* Indicate clickable */
+        }
+
+        .book-card img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .modal .modal-close {
+            cursor: pointer;
+            font-size: 24px;
+            float: right;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #00308F;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="COMPSSA_LOGO.png" alt="UG Library Logo" class="logo-img">
+            <h1 id="nav-title">COMPSSA LIBRARY SYSTEM</h1>
+        </div>
+
+        <div class="language-selector">
+            <label for="language" style="color: white;" id="language-label">Language:</label>
+            <select id="language" onchange="changeLanguage()">
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+            </select>
+        </div>
+
+        <!-- Hamburger Menu for User Info -->
+        <div class="hamburger-menu" id="hamburger-menu">
+            <div class="hamburger-icon" onclick="toggleMenu()">
+                &#9776; <!-- Hamburger icon -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay for User Menu -->
+    <div class="overlay" id="user-overlay">
+        <div class="close-btn" onclick="toggleMenu()">✖</div>
+        <div class="user-info">
+            <img src="user-icon.png" alt="User Icon" />
+            <p id="username">John Doe</p>
+        </div>
+        <div class="user-menu">
+            <button onclick="logout()" id="logout-btn">Log Out</button>
+            <button onclick="window.open('https://sakai.ug.edu.gh', '_blank')" id="go-sakai-btn">Go to Sakai UG</button>
+            <button onclick="window.open('https://ienabler.ug.edu.gh/pls/prodi41/w99pkg.mi_login', '_blank')" id="go-mis-btn">Go to MIS WEB</button>
+        </div>
+    </div>
+
+    <!-- Home Page Content -->
+    <div class="home-container">
+        <h2 id="library-collection-title">Library Book Collection</h2>
+
+        <!-- Search Bar Section -->
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" id="book-search" placeholder="Search for books..." onkeyup="searchBooks()">
+                <button id="search-btn" onclick="searchBooks()">Search</button>
+            </div>
+        </div>
+
+        <!-- Book List Section -->
+        <div class="books-list" id="books-list">
+            <!-- Books will be dynamically loaded here from Google Books API -->
+        </div>
+    </div>
+
+    <!-- Modal for Book Details -->
+    <div class="modal" id="book-modal">
+        <span class="modal-close" onclick="closeModal()">✖</span>
+        <h3 id="modal-title"></h3>
+        <img id="modal-image" src="" alt="Book Image">
+        <p><strong>Author:</strong> <span id="modal-author"></span></p>
+        <p><strong>Info:</strong> <span id="modal-info"></span></p>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 COMPSSA Library System. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const translations = {
+            en: {
+                navTitle: "COMPSSA LIBRARY SYSTEM",
+                languageLabel: "Language:",
+                libraryCollectionTitle: "Library Book Collection",
+                logoutBtn: "Log Out",
+                goSakaiBtn: "Go to Sakai UG",
+                goMisBtn: "Go to MIS WEB",
+                searchPlaceholder: "Search for books...",
+                searchBtn: "Search"
+            },
+            fr: {
+                navTitle: "SYSTÈME DE BIBLIOTHÈQUE COMPSSA",
+                languageLabel: "Langue:",
+                libraryCollectionTitle: "Collection de livres de la bibliothèque",
+                logoutBtn: "Se déconnecter",
+                goSakaiBtn: "Aller à Sakai UG",
+                goMisBtn: "Aller à MIS WEB",
+                searchPlaceholder: "Rechercher des livres...",
+                searchBtn: "Chercher"
+            },
+            es: {
+                navTitle: "SISTEMA DE BIBLIOTECA COMPSSA",
+                languageLabel: "Idioma:",
+                libraryCollectionTitle: "Colección de libros de la biblioteca",
+                logoutBtn: "Cerrar sesión",
+                goSakaiBtn: "Ir a Sakai UG",
+                goMisBtn: "Ir a MIS WEB",
+                searchPlaceholder: "Buscar libros...",
+                searchBtn: "Buscar"
+            }
+        };
+
+        function changeLanguage() {
+            const language = document.getElementById('language').value;
+
+            // Update all text elements based on the selected language
+            document.getElementById('nav-title').textContent = translations[language].navTitle;
+            document.getElementById('language-label').textContent = translations[language].languageLabel;
+            document.getElementById('library-collection-title').textContent = translations[language].libraryCollectionTitle;
+            document.getElementById('logout-btn').textContent = translations[language].logoutBtn;
+            document.getElementById('go-sakai-btn').textContent = translations[language].goSakaiBtn;
+            document.getElementById('go-mis-btn').textContent = translations[language].goMisBtn;
+            document.getElementById('book-search').placeholder = translations[language].searchPlaceholder;
+            document.getElementById('search-btn').textContent = translations[language].searchBtn;
+        }
+
+        // Check if user is logged in
+        const loggedIn = true; // Change this based on your login status
+
+        if (!loggedIn) {
+            alert("You must be logged in to view the books.");
+            window.location.href = "login.html"; // Redirect to login page if not logged in
+        }
+
+        // Toggle the hamburger menu visibility
+        function toggleMenu() {
+            const userOverlay = document.getElementById("user-overlay");
+            userOverlay.classList.toggle("show");
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedIn');
+            alert("Logging out...");
+            window.location.href = "index.html"; // Redirect to login page on log out
+        }
+
+        document.addEventListener('click', function(event) {
+            const userOverlay = document.getElementById("user-overlay");
+            const hamburgerMenu = document.getElementById("hamburger-menu");
+
+            if (!userOverlay.contains(event.target) && !hamburgerMenu.contains(event.target)) {
+                userOverlay.classList.remove("show"); // Close overlay if clicked outside
+            }
+        });
+
+        // Dynamically set the username (for demo purposes)
+        const username = "John Doe"; // This would come from your login system
+        document.getElementById("username").textContent = username;
+
+        // Function to search books using Google Books API
+        async function searchBooks() {
+            const searchTerm = document.getElementById("book-search").value;
+            const booksList = document.getElementById("books-list");
+
+            if (!searchTerm.trim()) {
+                booksList.innerHTML = "<p>Please enter a search term.</p>";
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${searchTerm}`);
+                const data = await response.json();
+
+                booksList.innerHTML = ""; // Clear the previous results
+
+                if (data.items) {
+                    data.items.forEach(item => {
+                        const book = item.volumeInfo;
+                        const bookCard = document.createElement("div");
+                        bookCard.classList.add("book-card");
+                        bookCard.setAttribute("data-title", book.title);
+                        bookCard.setAttribute("data-author", book.authors ? book.authors.join(", ") : "Unknown Author");
+                        bookCard.setAttribute("data-info", book.description || "No description available");
+                        bookCard.setAttribute("data-image", book.imageLinks ? book.imageLinks.thumbnail : "default.jpg");
+
+                        bookCard.innerHTML = `
+                            <img src="${book.imageLinks ? book.imageLinks.thumbnail : 'default.jpg'}" alt="${book.title}">
+                            <h3>${book.title}</h3>
+                        `;
+                        
+                        bookCard.addEventListener('click', function() {
+                            document.getElementById('modal-title').textContent = book.title;
+                            document.getElementById('modal-author').textContent = book.authors ? book.authors.join(", ") : "Unknown Author";
+                            document.getElementById('modal-info').textContent = book.description || "No description available";
+                            document.getElementById('modal-image').src = book.imageLinks ? book.imageLinks.thumbnail : 'default.jpg';
+                            document.getElementById('book-modal').style.display = 'block';
+                        });
+
+                        booksList.appendChild(bookCard);
+                    });
+                } else {
+                    booksList.innerHTML = "<p>No books found.</p>";
+                }
+            } catch (error) {
+                console.error("Error fetching books:", error);
+                booksList.innerHTML = "<p>Error fetching data from Google Books API.</p>";
+            }
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById('book-modal').style.display = 'none'; // Hide modal
+        }
+    </script>
+</body>
+</html>

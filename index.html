@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPSSA LIBRARY LOGIN</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="COMPSSA_LOGO.png" type="image/png">
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>COMPSSA LIBRARY LOGIN</h2>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="input-group">
+                <label for="user-type">User Type:</label>
+                <select id="user-type" name="user-type" required>
+                    <option value="">Select User Type</option>
+                    <option value="student">Student</option>
+                    <option value="staff">Staff</option>
+                </select>
+            </div>
+            <div class="button-group">
+                <button type="submit" id="login-btn">Login</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 COMPSSA Library System. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            // Prevent default form submission
+            event.preventDefault();
+
+            // Get the input values
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const userType = document.getElementById("user-type").value;
+
+            // Basic validation: Check if all fields are filled
+            if (username.trim() === "" || password.trim() === "" || userType.trim() === "") {
+                alert("All fields are required.");
+                return;
+            }
+
+            // Simulate successful login and redirect based on user type
+            if (userType === "student") {
+                window.location.href = "books.html"; // Redirect to books page for students
+            } else if (userType === "staff") {
+                window.location.href = "upload.html"; // Redirect to upload page for staff
+            }
+        });
+    </script>
+
+</body>
+</html>

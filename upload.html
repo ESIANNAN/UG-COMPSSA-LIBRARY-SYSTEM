@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPSSA LIBRARY - Upload Books</title>
+    <link rel="icon" href="COMPSSA_LOGO.png" type="image/png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #00308F;
+            padding: 10px;
+            color: white;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo-img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .home-container {
+            padding: 20px;
+        }
+        .books-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .book-card {
+            background: white;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1 1 calc(25% - 20px); /* Responsive layout */
+            cursor: pointer; /* Indicate clickable */
+        }
+        .book-card img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .modal {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .modal .modal-close {
+            cursor: pointer;
+            font-size: 24px;
+            float: right;
+        }
+        .upload-container {
+            margin: 20px 0;
+        }
+        /* Styling the input fields to make them longer and center the placeholder text */
+        .upload-form input[type="file"],
+        .upload-form input[type="text"],
+        .upload-form textarea {
+            padding: 10px;
+            margin: 10px 0;
+            width: 70%; /* Increase the length of the input fields */
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box; /* Ensure padding is included in the width */
+            text-align: center; /* Center the placeholder text */
+        }
+
+        /* Allowing the text area to resize vertically */
+        .upload-form textarea {
+            height: 100px; /* Set a fixed height for the description area */
+            resize: vertical; /* Allow vertical resizing of the textarea */
+        }
+
+        .upload-form button {
+            padding: 10px 20px;
+            background-color: #00308F;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #00308F;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar Section -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="COMPSSA_LOGO.png" alt="UG Library Logo" class="logo-img">
+            <h1>COMPSSA LIBRARY SYSTEM</h1>
+        </div>
+    </nav>
+
+    <!-- Home Page Content -->
+    <div class="home-container">
+        <h2>Library Book Collection (Staff View)</h2>
+
+        <!-- Upload Form Section -->
+        <div class="upload-container">
+            <h3>Upload a New Book</h3>
+            <form class="upload-form" id="upload-form">
+                <input type="text" id="book-title" placeholder="Book Title" required>
+                <input type="text" id="book-author" placeholder="Author Name" required>
+                <textarea id="book-description" placeholder="Book Description" required></textarea>
+                <input type="file" id="book-file" accept=".pdf,.epub" required>
+                <button type="submit">Upload Book</button>
+            </form>
+        </div>
+
+        <!-- Books List Section -->
+        <div class="books-list" id="books-list">
+            <div class="book-card" data-title="Book Title 1" data-author="Author 1" data-info="This is the description of Book Title 1." data-image="book1.jpg">
+                <img src="book1.jpg" alt="Book 1">
+                <h3>Book Title 1</h3>
+            </div>
+            <div class="book-card" data-title="Book Title 2" data-author="Author 2" data-info="This is the description of Book Title 2." data-image="book2.jpg">
+                <img src="book2.jpg" alt="Book 2">
+                <h3>Book Title 2</h3>
+            </div>
+            <div class="book-card" data-title="Book Title 3" data-author="Author 3" data-info="This is the description of Book Title 3." data-image="book3.jpg">
+                <img src="book3.jpg" alt="Book 3">
+                <h3>Book Title 3</h3>
+            </div>
+            <div class="book-card" data-title="Book Title 4" data-author="Author 4" data-info="This is the description of Book Title 4." data-image="book4.jpg">
+                <img src="book4.jpg" alt="Book 4">
+                <h3>Book Title 4</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Book Details -->
+    <div class="modal" id="book-modal">
+        <span class="modal-close" onclick="closeModal()">✖</span>
+        <h3 id="modal-title"></h3>
+        <img id="modal-image" src="" alt="Book Image">
+        <p><strong>Author:</strong> <span id="modal-author"></span></p>
+        <p><strong>Info:</strong> <span id="modal-info"></span></p>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 COMPSSA Library System. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Show Modal with Book Details
+        document.querySelectorAll('.book-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.getAttribute('data-title');
+                const author = this.getAttribute('data-author');
+                const info = this.getAttribute('data-info');
+                const image = this.getAttribute('data-image');
+
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-author').textContent = author;
+                document.getElementById('modal-info').textContent = info;
+                document.getElementById('modal-image').src = image;
+
+                document.getElementById('book-modal').style.display = 'block'; // Show modal
+            });
+        });
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById('book-modal').style.display = 'none'; // Hide modal
+        }
+
+        // Handle Upload Book Action
+        document.getElementById("upload-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            // Get form input values
+            const title = document.getElementById("book-title").value;
+            const author = document.getElementById("book-author").value;
+            const description = document.getElementById("book-description").value;
+            const file = document.getElementById("book-file").files[0];
+
+            // Validate inputs
+            if (!title || !author || !description || !file) {
+                alert("All fields are required.");
+                return;
+            }
+
+            // Simulate adding the book to the list (you'd typically send this data to a server)
+            const newBookCard = document.createElement("div");
+            newBookCard.classList.add("book-card");
+            newBookCard.innerHTML = `
+                <img src="book-placeholder.jpg" alt="${title}">
+                <h3>${title}</h3>
+            `;
+            newBookCard.setAttribute("data-title", title);
+            newBookCard.setAttribute("data-author", author);
+            newBookCard.setAttribute("data-info", description);
+            newBookCard.setAttribute("data-image", "book-placeholder.jpg");
+
+            document.getElementById("books-list").appendChild(newBookCard); // Add new book to the list
+            alert("Book uploaded successfully!");
+
+            // Clear the form fields
+            document.getElementById("upload-form").reset();
+        });
+    </script>
+</body>
+</html>
