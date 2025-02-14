@@ -193,6 +193,56 @@
             background-color: #00308F;
             color: white;
         }
+
+        .ask-librarian-icon {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .ask-librarian-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
+        border-radius: 8px;
+        max-width: 650px;
+        width: 90%;
+}
+
+    .ask-librarian-modal input,
+    .ask-librarian-modal textarea {
+        width: 100%;
+        padding: 12px;
+        margin: 12px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .ask-librarian-modal button {
+        padding: 10px 20px;
+        background-color: #00308F;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .modal-close-btn {
+        cursor: pointer;
+        font-size: 30px;
+        color: #00308F;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
     </style>
 </head>
 <body>
@@ -202,7 +252,6 @@
             <img src="COMPSSA_LOGO.png" alt="UG Library Logo" class="logo-img">
             <h1 id="nav-title">COMPSSA LIBRARY SYSTEM</h1>
         </div>
-
         <div class="language-selector">
             <label for="language" style="color: white;" id="language-label">Language:</label>
             <select id="language" onchange="changeLanguage()">
@@ -220,24 +269,9 @@
         </div>
     </nav>
 
-    <!-- Overlay for User Menu -->
-    <div class="overlay" id="user-overlay">
-        <div class="close-btn" onclick="toggleMenu()">✖</div>
-        <div class="user-info">
-            <img src="user-icon.png" alt="User Icon" />
-            <p id="username">John Doe</p>
-        </div>
-        <div class="user-menu">
-            <button onclick="logout()" id="logout-btn">Log Out</button>
-            <button onclick="window.open('https://sakai.ug.edu.gh', '_blank')" id="go-sakai-btn">Go to Sakai UG</button>
-            <button onclick="window.open('https://ienabler.ug.edu.gh/pls/prodi41/w99pkg.mi_login', '_blank')" id="go-mis-btn">Go to MIS WEB</button>
-        </div>
-    </div>
-
     <!-- Home Page Content -->
     <div class="home-container">
         <h2 id="library-collection-title">Library Book Collection</h2>
-
         <!-- Search Bar Section -->
         <div class="search-container">
             <div class="search-bar">
@@ -261,92 +295,84 @@
         <p><strong>Info:</strong> <span id="modal-info"></span></p>
     </div>
 
+  
+    <div class="ask-librarian-icon" onclick="openAskLibrarianForm()">
+        <img src="ASK.gif" alt="Ask the Librarian" style="width: 60px;">
+    </div>
+
+   
+    <div class="ask-librarian-modal" id="ask-librarian-modal">
+        <span class="modal-close-btn" onclick="closeAskLibrarianForm()">✖</span> <!-- Close button -->
+        <h3>Ask the Librarian</h3>
+        <form id="ask-librarian-form" action="/ask-librarian" method="POST">
+            <input type="text" id="name" name="name" placeholder="Your Name" required><br>
+            <input type="email" id="email" name="email" placeholder="Your Email" required><br>
+            <textarea id="message" name="message" placeholder="Your Message" required></textarea><br>
+            <button type="submit">Submit</button>
+        </form>
+        
+    </div>
+    
+
     <footer>
         <p>&copy; 2024 COMPSSA Library System. All Rights Reserved.</p>
     </footer>
 
     <script>
+       document.getElementById('ask-librarian-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // Collect form data
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
+
+    // Send the data to the server via a POST request
+    fetch('http://localhost:3000/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, message }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Your message has been submitted. We will get back to you shortly.');
+        closeAskLibrarianForm(); // Close the form after successful submission
+    })
+    .catch((error) => {
+        alert('Error sending message. Please try again later.');
+    });
+});
+
+       
+        function changeLanguage() {
+            const language = document.getElementById('language').value;
+            document.getElementById('nav-title').textContent = translations[language].navTitle;
+            document.getElementById('language-label').textContent = translations[language].languageLabel;
+            document.getElementById('library-collection-title').textContent = translations[language].libraryCollectionTitle;
+        }
+
+       
         const translations = {
             en: {
                 navTitle: "COMPSSA LIBRARY SYSTEM",
                 languageLabel: "Language:",
-                libraryCollectionTitle: "Library Book Collection",
-                logoutBtn: "Log Out",
-                goSakaiBtn: "Go to Sakai UG",
-                goMisBtn: "Go to MIS WEB",
-                searchPlaceholder: "Search for books...",
-                searchBtn: "Search"
+                libraryCollectionTitle: "Library Book Collection"
             },
             fr: {
                 navTitle: "SYSTÈME DE BIBLIOTHÈQUE COMPSSA",
                 languageLabel: "Langue:",
-                libraryCollectionTitle: "Collection de livres de la bibliothèque",
-                logoutBtn: "Se déconnecter",
-                goSakaiBtn: "Aller à Sakai UG",
-                goMisBtn: "Aller à MIS WEB",
-                searchPlaceholder: "Rechercher des livres...",
-                searchBtn: "Chercher"
+                libraryCollectionTitle: "Collection de livres de la bibliothèque"
             },
             es: {
                 navTitle: "SISTEMA DE BIBLIOTECA COMPSSA",
                 languageLabel: "Idioma:",
-                libraryCollectionTitle: "Colección de libros de la biblioteca",
-                logoutBtn: "Cerrar sesión",
-                goSakaiBtn: "Ir a Sakai UG",
-                goMisBtn: "Ir a MIS WEB",
-                searchPlaceholder: "Buscar libros...",
-                searchBtn: "Buscar"
+                libraryCollectionTitle: "Colección de libros de la biblioteca"
             }
         };
 
-        function changeLanguage() {
-            const language = document.getElementById('language').value;
-
-            // Update all text elements based on the selected language
-            document.getElementById('nav-title').textContent = translations[language].navTitle;
-            document.getElementById('language-label').textContent = translations[language].languageLabel;
-            document.getElementById('library-collection-title').textContent = translations[language].libraryCollectionTitle;
-            document.getElementById('logout-btn').textContent = translations[language].logoutBtn;
-            document.getElementById('go-sakai-btn').textContent = translations[language].goSakaiBtn;
-            document.getElementById('go-mis-btn').textContent = translations[language].goMisBtn;
-            document.getElementById('book-search').placeholder = translations[language].searchPlaceholder;
-            document.getElementById('search-btn').textContent = translations[language].searchBtn;
-        }
-
-        // Check if user is logged in
-        const loggedIn = true; // Change this based on your login status
-
-        if (!loggedIn) {
-            alert("You must be logged in to view the books.");
-            window.location.href = "login.html"; // Redirect to login page if not logged in
-        }
-
-        // Toggle the hamburger menu visibility
-        function toggleMenu() {
-            const userOverlay = document.getElementById("user-overlay");
-            userOverlay.classList.toggle("show");
-        }
-
-        function logout() {
-            localStorage.removeItem('loggedIn');
-            alert("Logging out...");
-            window.location.href = "index.html"; // Redirect to login page on log out
-        }
-
-        document.addEventListener('click', function(event) {
-            const userOverlay = document.getElementById("user-overlay");
-            const hamburgerMenu = document.getElementById("hamburger-menu");
-
-            if (!userOverlay.contains(event.target) && !hamburgerMenu.contains(event.target)) {
-                userOverlay.classList.remove("show"); // Close overlay if clicked outside
-            }
-        });
-
-        // Dynamically set the username (for demo purposes)
-        const username = "John Doe"; // This would come from your login system
-        document.getElementById("username").textContent = username;
-
-        // Function to search books using Google Books API
+        // Search books function (fetching from Google Books API)
         async function searchBooks() {
             const searchTerm = document.getElementById("book-search").value;
             const booksList = document.getElementById("books-list");
@@ -396,9 +422,9 @@
             }
         }
 
-        // Close the modal
+        // Close the book modal
         function closeModal() {
-            document.getElementById('book-modal').style.display = 'none'; // Hide modal
+            document.getElementById('book-modal').style.display = 'none';
         }
     </script>
 </body>
